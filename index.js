@@ -30,12 +30,23 @@ app.get('/stories/:title', (req, res) => {
     res.json(stories.filter(story => story.title.includes(title)));
 });
 
-app.get('/topstories', (req, res) => {
+app.get('/topstories', (req, res, next) => {
     request(
         { url: 'https://hacker-news.firebaseio.com/v0/topstories.json'},
         (error, response, body) => {
+            if (error || response.statusCode !== 200) {
+                return next(new Error('Error requesting top stories'));
+            }
+
             res.json(JSON.parse(body));
         });
+});
+
+app.use((err, req, res, next) => {
+    res.status(500).json({
+        type: 'error',
+        message: err.message,
+    });
 });
 
 const PORT = 3000;
