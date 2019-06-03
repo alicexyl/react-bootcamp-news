@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node ./",
+    "start": "npm run build-client && node ./",
     "dev": "nodemon ./",
     "dev-client": "parcel client/src/index.html",
     "build-client": "parcel build client/src/index.html --out-dir client/dist",
