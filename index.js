@@ -30,15 +30,36 @@ app.get('/stories/:title', (req, res) => {
     res.json(stories.filter(story => story.title.includes(title)));
 });
 
+const HACKER_NEWS_API = 'https://hacker-news.firebaseio.com/v0';
 app.get('/topstories', (req, res, next) => {
     request(
-        { url: 'https://hacker-news.firebaseio.com/v0/topstories.json'},
+        { url: `${HACKER_NEWS_API}/topstories.json`},
         (error, response, body) => {
             if (error || response.statusCode !== 200) {
                 return next(new Error('Error requesting top stories'));
             }
 
-            res.json(JSON.parse(body));
+            const topStories = JSON.parse(body);
+            const limit = 10;
+
+            Promise.all(
+                topStories.slice(0, limit).map(story => {
+                    return new Promise((resolve, reject) => {
+                        request({ url: `${HACKER_NEWS_API}/item/${story}.json` },
+                        (error, response, body) => {
+                            if (error || response.statusCode != 200) {
+                                return reject(new Error('Error requesting top story item'));
+                            }
+
+                            resolve(JSON.parse(body));
+                        });
+                    });
+                })
+            )
+            .then(fullTopStories => {
+                res.json(fullTopStories);
+            })
+            .catch(error => next(error));
         });
 });
 
