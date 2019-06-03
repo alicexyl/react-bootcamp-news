@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 
-const SERVER_ROOT = 'http://localhost:3000';
-
 class App extends Component {
     state = { stories: [] };
 
     componentDidMount() {
-        fetch(`${SERVER_ROOT}/topstories`)
+        fetch(`${document.location.origin}/topstories`)
         .then(response => response.json())
         .then(json => this.setState({ stories: json }))
         .catch(error => alert(error.message));
